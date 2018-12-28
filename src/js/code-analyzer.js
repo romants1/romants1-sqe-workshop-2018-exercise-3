@@ -5,7 +5,7 @@ import * as escodegen from 'escodegen';
 // var esgraph = require('esgraph');
 // var escodegen = require('escodegen');
 let args = [];
-let r_val = ['Literal' , 'Identifier', 'BinaryExpression', 'MemberExpression', 'UnaryExpression', 'ArrayExpression'];
+let r_val = ['Literal' , 'Identifier', 'BinaryExpression', 'MemberExpression', 'UnaryExpression', 'ArrayExpression', 'LogicalExpression'];
 let to_color  = [];
 let expr_nodes = [];
 let glob = [];
@@ -31,7 +31,7 @@ function args_line (left, right){
 
 const clean_func = (code) => {
     let arr = code.split('\n').map(x => x.trim());
-    let i = 0; ;
+    let i = 0;
     for(i; i < arr. length; i++){
         if(arr[i].split(' ')[0] === 'function')
             break;
@@ -40,7 +40,7 @@ const clean_func = (code) => {
     }
     return arr.slice(i).join(' ');
 
-}
+};
 
 const parse_application = (obj) => {
     try {
@@ -147,7 +147,7 @@ const color = (dot_graph) => {
     let arr = dot_graph.split('\n');
     let edges = arr.filter(x => x.includes('->'));
     let nodes = arr.filter(x => (!x.includes('->')));
-    nodes = nodes.map(x => to_color.includes(x.split(' ')[0])? x.substr(0, x.length-1) + ', color = green, style = filled]' : x);
+    nodes = nodes.map(x => to_color.includes(x.split(' ')[0])? x.substr(0, x.length-1) + ', fillcolor = green, style = filled]' : x);
     nodes = nodes.map(x => x.split('"')).map((y,z) => y[0] + '"-' + (z + 1) + '-\n' + y[1] + '"' + y[2]);
     nodes = fix_shapes(nodes);
     nodes = nodes.join('\n');
@@ -155,67 +155,5 @@ const color = (dot_graph) => {
     return nodes + edges;
 };
 
-// let source = 'function foo(x, y, z){\n' +
-//     '    let a = x + 1;\n' +
-//     '    let b = a + y;\n' +
-//     '    let c = 0;\n' +
-//     '    \n' +
-//     '    if (b < z) {\n' +
-//     '        c = c + 5;\n' +
-//     '    } else if (b < z * 2) {\n' +
-//     '        c = c + x + 5;\n' +
-//     '    } else {\n' +
-//     '        c = c + z + 5;\n' +
-//     '    }\n' +
-//     '    \n' +
-//     '    return c;\n' +
-//     '}\n';
-
-//console.log(parseCode(source,'(x=1, y=2, z=10)'));
-// console.log(parseCode( 'function f(x , y, z){\n' +
-//     '\n' +
-//     '    if(true)\n' +
-//     '    {\n' +
-//     '        if(false)\n' +
-//     '        {\n' +
-//     '            let b = 1;\n' +
-//     '            return b;\n' +
-//     '        }\n' +
-//     '        else if(false){\n' +
-//     '            let a = 1;\n' +
-//     '            let b = false;\n' +
-//     '            while(b)\n' +
-//     '            {\n' +
-//     '                console.log(123);\n' +
-//     '            }\n' +
-//     '        } else{\n' +
-//     '            let b = 3;\n' +
-//
-//     '        }\n' +
-//     '    }\n' +
-//     '    let t = 0;\n' +
-//     '    while(t < 3 )\n' +
-//     '    {\n' +
-//     '        if(true){\n' +
-//     '            t = t + 1;                   \n' +
-//     '        }else if(false)\n' +
-//     '        {\n' +
-//     '            t = t - 1;\n' +
-//     '        }else{\n' +
-//     '            t = t - 1;\n' +
-//     '        }\n' +
-//     '    }\n' +
-//     '    \n' +
-//     '    if(false)\n' +
-//     '    {\n' +
-//     '        let c = 10;\n' +
-//     '        return c;\n' +
-//     '    }else{\n' +
-//     '        if(true){\n' +
-//     '            return 11111;\n' +
-//     '        }\n' +
-//     '    }\n' +
-//     '}', '(x=1 ,y=2, z=111)'));
-
 // module.exports = (parseCode);
-export {parseCode};
+export {parseCode, clean_func, parse_application,clean_exp,fix_shapes,color };
