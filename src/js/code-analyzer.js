@@ -1,24 +1,45 @@
-// import * as esprima from 'esprima';
-var esprima = require('esprima');
-var esgraph = require('esgraph');
-var escodegen = require('escodegen');
+import * as esprima from 'esprima';
+import * as esgraph from 'esgraph';
+import * as escodegen from 'escodegen';
+// var esprima = require('esprima');
+// var esgraph = require('esgraph');
+// var escodegen = require('escodegen');
 let args = [];
 let r_val = ['Literal' , 'Identifier', 'BinaryExpression', 'MemberExpression', 'UnaryExpression', 'ArrayExpression'];
 let to_color  = [];
 let expr_nodes = [];
+let glob = [];
 
 const parseCode = (codeToParse, app) => {
+    args = [];
+    to_color = [];
+    expr_nodes = [];
+    glob = [];
+    let func = clean_func(codeToParse);
     parse_application(esprima.parseScript(app));
-    const cfg = esgraph(esprima.parse(codeToParse, { range: true }).body[0].body);
-    let dot = esgraph.dot(cfg, { counter: 0, source: codeToParse });
+    const cfg = esgraph(esprima.parse(func, { range: true }).body[0].body);
+    let dot = esgraph.dot(cfg, { counter: 0, source: func });
     let expr_dot = esgraph.dot(cfg, {counter: 0});
-    to_color =  discover_path(clean_exp(dot.toString()),clean_exp(expr_dot.toString()),parse_args());
+    to_color =  discover_path(clean_exp(dot.toString()),clean_exp(expr_dot.toString()),glob.join(' ') + parse_args());
     return color(clean_exp(dot.toString()));
 };
 
 function args_line (left, right){
     this.left = left;
     this.right = right;
+}
+
+const clean_func = (code) => {
+    let arr = code.split('\n').map(x => x.trim());
+    let i = 0; ;
+    for(i; i < arr. length; i++){
+        if(arr[i].split(' ')[0] === 'function')
+            break;
+        else
+            glob.push(arr[i]);
+    }
+    return arr.slice(i).join(' ');
+
 }
 
 const parse_application = (obj) => {
@@ -134,23 +155,23 @@ const color = (dot_graph) => {
     return nodes + edges;
 };
 
-let source = 'function foo(x, y, z){\n' +
-    '    let a = x + 1;\n' +
-    '    let b = a + y;\n' +
-    '    let c = 0;\n' +
-    '    \n' +
-    '    if (b < z) {\n' +
-    '        c = c + 5;\n' +
-    '    } else if (b < z * 2) {\n' +
-    '        c = c + x + 5;\n' +
-    '    } else {\n' +
-    '        c = c + z + 5;\n' +
-    '    }\n' +
-    '    \n' +
-    '    return c;\n' +
-    '}\n';
+// let source = 'function foo(x, y, z){\n' +
+//     '    let a = x + 1;\n' +
+//     '    let b = a + y;\n' +
+//     '    let c = 0;\n' +
+//     '    \n' +
+//     '    if (b < z) {\n' +
+//     '        c = c + 5;\n' +
+//     '    } else if (b < z * 2) {\n' +
+//     '        c = c + x + 5;\n' +
+//     '    } else {\n' +
+//     '        c = c + z + 5;\n' +
+//     '    }\n' +
+//     '    \n' +
+//     '    return c;\n' +
+//     '}\n';
 
-console.log(parseCode(source,'(x=1, y=2, z=10)'));
+//console.log(parseCode(source,'(x=1, y=2, z=10)'));
 // console.log(parseCode( 'function f(x , y, z){\n' +
 //     '\n' +
 //     '    if(true)\n' +
@@ -196,5 +217,5 @@ console.log(parseCode(source,'(x=1, y=2, z=10)'));
 //     '    }\n' +
 //     '}', '(x=1 ,y=2, z=111)'));
 
-module.exports = (parseCode);
-// export {parseCode};
+// module.exports = (parseCode);
+export {parseCode};
